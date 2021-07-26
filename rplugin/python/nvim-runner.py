@@ -1,29 +1,29 @@
 import neovim
+import re
 
 @neovim.plugin
 class Runner(object):
-    """
-    filetypeに応じてterminalで実行するようなRunnerが作りたい。
-    とりあえずc++だけの実行を考える
-
-    let g:excuserMap = {"cpp": "g++ -std=c++17 $dir$fileName -o $dir$fileNameWithoutExt && $dir$fileNameWithoutExt"}
-    のように設定されている。
-    """
 
     def __init__(self, nvim):
         self.nvim = nvim
+        self.cmd_map = self.nvim.request("nvim_get_var","exectorMap")
 
-    @neovim.function("TestFunction", sync=True)
-    def testfunction(self, args):
-        return 3
+    @neovim.command("Runner", nargs='*')
+    def testcommand(self, args):
+        filetype = self.nvim.request("nvim_buf_get_option",0,"filetype")
+        path = self.nvim.request("nvim_call_function","expand",["%:p"]) 
 
-    @neovim.command("TestCommand", range='', nargs='*')
-    def testcommand(self, args, range):
-        self.nvim.current.line = ('Command with args: {}, range: {}'
-                                  .format(args, range))
+        replaced_conf = {"$dirNoExtention":re.search(r'.*\.',path).group()[:-1],"$dir":path}
+        cmd = self.cmd_map[filetype] 
 
-    @neovim.autocmd('BufEnter', pattern='*.py', eval='expand("<afile>")', sync=True)
-    def on_bufenter(self, filename):
-        self.nvim.out_write("testplugin is in " + filename + "\n")
+        replaced_cmd = self._change_string_according_to_dict(cmd,replaced_conf)
 
-    @neovim.command("")
+        self.nvim.request("nvim_command","split term://"+replaced_cmd)
+        self.nvim.request("nvim_buf_set_option",0,"ma",True)
+        self.nvim.current.line = "Please input here..."
+
+    def _change_string_according_to_dict(self,str, dic):
+        for key , obj in dic.items():
+            str = str.replace(key,obj)
+        return str
+
