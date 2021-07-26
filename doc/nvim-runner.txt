@@ -1,0 +1,34 @@
+
+*nvim-runner.txt*	
+
+
+        Nvim-runner (like vscode)
+
+attention
+it can run only cpp file. if you want to use this plugin, you must add g:exectorMap according  to usage.
+
+
+code runner for nvim					*runner*
+
+1. usage		|online-help|
+
+==============================================================================
+
+1. usage
+
+please enter :Runner, and you can run file.
+
+g:exectorMap is dictionary.             *g:exectorMap*
+default is 
+let g:exectorMap = {"cpp":"g++ -std=c++11 -o $dirNoExtention $dir && $dirNoExtention","rust":"hello rust","python":"python $dir"}
+
+you can use $dir and $dirNoExtention.
+$dir is full pass of file.
+$dirNoExtention is pass that is removed extention from file.
+
+for example, if filename is tmp.cpp, the command may be
+    g++ -std=c++11 -o tmp tmp.cpp && tmp
+
+
+
+
