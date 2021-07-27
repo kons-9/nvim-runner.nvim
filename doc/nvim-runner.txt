@@ -4,30 +4,42 @@
 
         Nvim-runner (like vscode)
 
-attention
-it can run only cpp file. if you want to use this plugin, you must add g:exectorMap according  to usage.
+(attention)
+It can run only cpp file now. If you want to use this plugin, you must add g:exectorMap according to usage.
 
 
 code runner for nvim					*runner*
 
-1. usage		|online-help|
+1. usage		|usage|
+2. future work
 
 ==============================================================================
 
 1. usage
 
-please enter :Runner, and you can run file.
+Please enter :Runner, and you can run file.
+Default setting is written in setting.toml.
 
 g:exectorMap is dictionary.             *g:exectorMap*
-default is 
+Default is 
 let g:exectorMap = {"cpp":"g++ -std=c++11 -o $dirNoExtention $dir && $dirNoExtention","rust":"hello rust","python":"python $dir"}
-
-you can use $dir and $dirNoExtention.
-$dir is full pass of file.
-$dirNoExtention is pass that is removed extention from file.
-
 for example, if filename is tmp.cpp, the command may be
     g++ -std=c++11 -o tmp tmp.cpp && tmp
+
+You can use $dir and $fileNoExtention etc...
+
+g:extentionMap is dictionary.           *g:extentionMap*
+Default is None.
+
+example:
+    When you want to add extention, like .ml, 
+    g:extentionMap["ml"] = "ocaml"
+
+2. future work
+* import user defined toml file 
+* import user defined json file
+* add :DebugRunner
+
 
 
 
