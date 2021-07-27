@@ -95,6 +95,7 @@ class Runner(object):
             "${relativeFileDir}"        : relativeFileDir
         }
         config_dict = {
+            "dir"                    : fileDirname  ,
             "file"                   : file           ,
             "fileExtname"            : fileExtname    ,
             "fileNoExtention"        : fileNoExtention,
