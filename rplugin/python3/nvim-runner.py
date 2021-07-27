@@ -76,9 +76,8 @@ class Runner(object):
         """
 
         file = self.nvim.request("nvim_call_function","expand",["%:p"])
-        ext  = re.search(r'\.[\.]*', file).group()
-        fileExtname =ext
-        fileNoExtention = file[:len(ext)]
+        fileExtname = re.search(r'\.[\.]*', file).group()
+        fileNoExtention = file[:len(fileExtname)]
         fileBasename = self.nvim.request("nvim_call_function","expand",["%:t"])
         fileDirname = file[:len(fileBasename)]
         cwd = self.nvim.request("nvim_call_function","getcwd",[])
