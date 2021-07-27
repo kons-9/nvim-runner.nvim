@@ -25,13 +25,13 @@ class Runner(object):
             return
 
         config_dict = self._make_replace_config_dict()
-        replaced_cmd = self._change_string_according_to_dict(cmd,config_dict)
+        replaced_cmd = self._change_string_according_to_dict(cmd, config_dict)
 
         self.nvim.request("nvim_command","split term://"+replaced_cmd)
         self.nvim.request("nvim_buf_set_option",0,"ma",True)
         self.nvim.current.line = "Please input here..."
 
-    def _change_string_according_to_dict(self,str_,dict_):
+    def _change_string_according_to_dict(self, str_, dict_):
         return Template(str_).substitute(dict_)
 
     def _make_command(self,filetype):
@@ -93,6 +93,16 @@ class Runner(object):
             "${cwd}"                    : cwd            ,
             "${relativeFile}"           : relativeFile   ,
             "${relativeFileDir}"        : relativeFileDir
+        }
+        config_dict = {
+            "file"                   : file           ,
+            "fileExtname"            : fileExtname    ,
+            "fileNoExtention"        : fileNoExtention,
+            "fileBasename"           : fileBasename   ,
+            "fileDirname"            : fileDirname    ,
+            "cwd"                    : cwd            ,
+            "relativeFile"           : relativeFile   ,
+            "relativeFileDir"        : relativeFileDir
         }
 
         return config_dict
