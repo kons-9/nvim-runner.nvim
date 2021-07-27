@@ -42,14 +42,19 @@ class Runner(object):
         default file is setting.toml which locate same dir.
         """
         ext = self.nvim.request("nvim_call_function","expand",["%:e"])
+
         if filetype in self._cmd_exector_map:
             cmd = self._cmd_exector_map[filetype]
-        else if ext in self._cmd_extention_map:
+
+        elif ext in self._cmd_extention_map:
             cmd = self.self._cmd_extention_map[ext]
-        else if filetype in self.toml_dict["exector"]:
+
+        elif filetype in self.toml_dict["exector"]:
             cmd = self.toml_dict["exector"][filetype] 
-        else if ext in self.toml_dict["extention"]: 
+
+        elif ext in self.toml_dict["extention"]: 
             cmd = self.toml_dict["extention"][ext]
+
         else:
             self.nvim.request("nvim_command",'echo "Error: Cannot find filetype in g:exectorMap or toml file"')
             cmd = None 
