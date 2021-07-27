@@ -5,7 +5,7 @@ rust = "cargo run"
 objective-c = "cd $dir && gcc -framework Cocoa $fileName -o $fileNameWithoutExt && $dir$fileNameWithoutExt"
 python = "python3 -u"
 java = "cd $dir && javac $fileName && java $fileNameWithoutExt"
-markdown = "echo $SHELL"
+markdown = 'echo "hello"' 
 
 [extention]
 v = "cd $dir && iverilog sim$fileName $fileName && ./a.out"
