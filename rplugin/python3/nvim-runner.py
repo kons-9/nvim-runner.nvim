@@ -27,7 +27,7 @@ class Runner(object):
         config_dict = self._make_replace_config_dict()
         replaced_cmd = self._change_string_according_to_dict(cmd, config_dict)
 
-        self.nvim.request("nvim_command", "echo "+replaced_cmd)
+        self.nvim.request("nvim_command", 'echo "'+replaced_cmd'"')
         self.nvim.request("nvim_command","split term://"+replaced_cmd)
         self.nvim.request("nvim_buf_set_option",0,"ma",True)
         self.nvim.current.line = "Please input here..."
