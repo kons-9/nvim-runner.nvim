@@ -1,8 +1,8 @@
-import neovim
 import re
 from string import Template
 import os
 import toml
+import neovim
 
 @neovim.plugin
 class Runner(object):
@@ -14,13 +14,13 @@ class Runner(object):
         self._cmd_extention_map = self.nvim.request("nvim_get_var", "extentionMap")
 
         toml_path = os.path.join(os.path.dirname(__file__),"setting.toml")
-        self._toml_dict = toml.load(open(toml_path))
+        self.toml_dict = toml.load(open(toml_path))
 
     @neovim.command("Runner", nargs='*')
-    def runner(self, args):
+    def runner(self, _):
         filetype = self.nvim.request("nvim_buf_get_option",0,"filetype")
 
-        cmd = _make_command(filetype)
+        cmd = self._make_command(filetype)
         if cmd == None:
             return
 
@@ -32,7 +32,7 @@ class Runner(object):
         self.nvim.current.line = "Please input here..."
 
     def _change_string_according_to_dict(self,str_,dict_):
-        return Template(str_).substitute(dic)
+        return Template(str_).substitute(dict_)
 
     def _make_command(self,filetype):
         """
@@ -47,17 +47,17 @@ class Runner(object):
             cmd = self._cmd_exector_map[filetype]
 
         elif ext in self._cmd_extention_map:
-            cmd = self.self._cmd_extention_map[ext]
+            cmd = self._cmd_extention_map[ext]
 
         elif filetype in self.toml_dict["exector"]:
-            cmd = self.toml_dict["exector"][filetype] 
+            cmd = self.toml_dict["exector"][filetype]
 
-        elif ext in self.toml_dict["extention"]: 
+        elif ext in self.toml_dict["extention"]:
             cmd = self.toml_dict["extention"][ext]
 
         else:
             self.nvim.request("nvim_command",'echo "Error: Cannot find filetype in g:exectorMap or toml file"')
-            cmd = None 
+            cmd = None
         return cmd
 
 
@@ -75,25 +75,25 @@ class Runner(object):
         ${relativeFileDir}
         """
 
-        path = self.nvim.request("nvim_call_function","expand",["%:p"]) 
-        ext  = re.search(r'\.[\.]*', path)
-        fileNoExtention = path[:ext]
-        fileBasename = self.nvim.request("nvim_call_function","expand",["%:t"]) 
-        fileDirname = path[:len(fileBasename)]
+        file = self.nvim.request("nvim_call_function","expand",["%:p"])
+        ext  = re.search(r'\.[\.]*', file)
+        fileExtname =ext
+        fileNoExtention = file[:ext]
+        fileBasename = self.nvim.request("nvim_call_function","expand",["%:t"])
+        fileDirname = file[:len(fileBasename)]
         cwd = self.nvim.request("nvim_call_function","getcwd",[])
-        relativeFile = path[len(cwd):]
+        relativeFile = file[len(cwd):]
         relativeFileDir = relativeFile[:len(fileBasename)]
 
         config_dict = {
-            "${file}"                   : file           
-            "${fileExtname}"            : fileExtname    
-            "${fileNoExtention}"        : fileNoExtention
-            "${fileBasename}"           : fileBasename   
-            "${fileDirname}"            : fileDirname    
-            "${cwd}"                    : cwd            
-            "${relativeFile}"           : relativeFile   
-            "${relativeFileDir}"        : relativeFileDir      
+            "${file}"                   : file           ,
+            "${fileExtname}"            : fileExtname    ,
+            "${fileNoExtention}"        : fileNoExtention,
+            "${fileBasename}"           : fileBasename   ,
+            "${fileDirname}"            : fileDirname    ,
+            "${cwd}"                    : cwd            ,
+            "${relativeFile}"           : relativeFile   ,
+            "${relativeFileDir}"        : relativeFileDir
         }
 
         return config_dict
-
