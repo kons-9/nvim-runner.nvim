@@ -1,29 +1,94 @@
 import neovim
 import re
+from string import Template
+import os
+import toml
 
 @neovim.plugin
 class Runner(object):
 
     def __init__(self, nvim):
         self.nvim = nvim
-        self.cmd_map = self.nvim.request("nvim_get_var","exectorMap")
+
+        self._cmd_exector_map = self.nvim.request("nvim_get_var","exectorMap")
+        self._cmd_extention_map = self.nvim.request("nvim_get_var", "extentionMap")
+
+        toml_path = os.path.join(os.path.dirname(__file__),"setting.toml")
+        self._toml_dict = toml.load(open(toml_path))
 
     @neovim.command("Runner", nargs='*')
-    def testcommand(self, args):
+    def runner(self, args):
         filetype = self.nvim.request("nvim_buf_get_option",0,"filetype")
-        path = self.nvim.request("nvim_call_function","expand",["%:p"]) 
 
-        replaced_conf = {"$dirNoExtention":re.search(r'.*\.',path).group()[:-1],"$dir":path}
-        cmd = self.cmd_map[filetype] 
+        cmd = _make_command(filetype)
+        if cmd == None:
+            return
 
-        replaced_cmd = self._change_string_according_to_dict(cmd,replaced_conf)
+        config_dict = self._make_replace_config_dict()
+        replaced_cmd = self._change_string_according_to_dict(cmd,config_dict)
 
         self.nvim.request("nvim_command","split term://"+replaced_cmd)
         self.nvim.request("nvim_buf_set_option",0,"ma",True)
         self.nvim.current.line = "Please input here..."
 
-    def _change_string_according_to_dict(self,str, dic):
-        for key , obj in dic.items():
-            str = str.replace(key,obj)
-        return str
+    def _change_string_according_to_dict(self,str_,dict_):
+        return Template(str_).substitute(dic)
+
+    def _make_command(self,filetype):
+        """
+        first, search user defined file.
+        second, search default file.
+
+        default file is setting.toml which locate same dir.
+        """
+        ext = self.nvim.request("nvim_call_function","expand",["%:e"])
+        if filetype in self._cmd_exector_map:
+            cmd = self._cmd_exector_map[filetype]
+        else if ext in self._cmd_extention_map:
+            cmd = self.self._cmd_extention_map[ext]
+        else if filetype in self.toml_dict["exector"]:
+            cmd = self.toml_dict["exector"][filetype] 
+        else if ext in self.toml_dict["extention"]: 
+            cmd = self.toml_dict["extention"][ext]
+        else:
+            self.nvim.request("nvim_command",'echo "Error: Cannot find filetype in g:exectorMap or toml file"')
+            cmd = None 
+        return cmd
+
+
+    def _make_replace_config_dict(self):
+        """
+        like vscode, we can use these var.
+
+        ${file}
+        ${fileExtname}
+        ${fileNoExtention}
+        ${fileBasename}
+        ${fileDirname}
+        ${cwd}
+        ${relativeFile}
+        ${relativeFileDir}
+        """
+
+        path = self.nvim.request("nvim_call_function","expand",["%:p"]) 
+        ext  = re.search(r'\.[\.]*', path)
+        fileNoExtention = path[:ext]
+        fileBasename = self.nvim.request("nvim_call_function","expand",["%:t"]) 
+        fileDirname = path[:len(fileBasename)]
+        cwd = self.nvim.request("nvim_call_function","getcwd",[])
+        relativeFile = path[len(cwd):]
+        relativeFileDir = relativeFile[:len(fileBasename)]
+
+        config_dict = {
+            "${file}"                   : file           
+            "${fileExtname}"            : fileExtname    
+            "${fileNoExtention}"        : fileNoExtention
+            "${fileBasename}"           : fileBasename   
+            "${fileDirname}"            : fileDirname    
+            "${cwd}"                    : cwd            
+            "${relativeFile}"           : relativeFile   
+            "${relativeFileDir}"        : relativeFileDir      
+        }
+
+        return config_dict
 

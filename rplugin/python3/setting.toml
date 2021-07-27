@@ -1,0 +1,10 @@
+[exector]
+c = "cd $dir && gcc $fileName -o $fileNameWithoutExt && $dir$fileNameWithoutExt"
+cpp = "cd $dir && g++ $fileName -o $fileNameWithoutExt && $dir$fileNameWithoutExt"
+rust = "cargo run"
+objective-c = "cd $dir && gcc -framework Cocoa $fileName -o $fileNameWithoutExt && $dir$fileNameWithoutExt"
+python = "python3 -u"
+java = "cd $dir && javac $fileName && java $fileNameWithoutExt"
+
+[extention]
+v = "cd $dir && iverilog sim$fileName $fileName && ./a.out"
